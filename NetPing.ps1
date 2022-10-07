@@ -1,10 +1,11 @@
 $netadr = $args[0]
-$delay = 2
+$delay = 2 # ping timeout
 $lang = (get-Culture).TwoLetterISOLanguageName
-if ($lang -ne "ru") {
+
+if ($lang -ne "ru") {    # language message
     $lang = "en"
 } 
-$msgs=@{}
+$msgs=@{}  # messages
 $msgs["ru"]=(" Ошибка : необходим параметр в формате x.x.x.x/m (где x от 0 по 255, m от 24 по 30)",
     " Ошибка : в данной версии скрипта маска может быть от 24 и по 30 включительно",
     " Ошибка : неверный начальный адрес сети ",
@@ -27,39 +28,39 @@ $msgs["en"] = (" Error : required parameter in x.x.x.x/m format (x from 0 to 255
     "No ping replies received")
     
 
-if (-not $netadr) {
-    $msgs[$lang][0]
+if (-not $netadr) {   
+    $msgs[$lang][0]   # no parameter
     exit
 }
 $nmsk = $netadr.IndexOf("/")
-if ($nmsk -lt 0) {
+if ($nmsk -lt 0) {    # parameter format check
     $msgs[$lang][0]
     exit
 }
 $msk = $netadr.SubString($nmsk + 1)
 if (-not ($msk -match "^\d+$")) {
-    $msgs[$lang][0]
+    $msgs[$lang][0]   # digit check mask
     exit
 }
 $msk = [int]$msk
 if ($msk -lt 24 -or $msk -gt 30){
-    $msgs[$lang][1]
+    $msgs[$lang][1]   # mask range check
     exit
 }
 $net = $netadr.SubString(0,$nmsk)
 $ips = $net -split "\."
 if ($ips.length -ne 4) {
-    $msgs[$lang][0]
+    $msgs[$lang][0]   # check network
     exit
 }
 foreach($d in $ips){
     if (-not ($d -match "^\d+$")){
-        $msgs[$lang][0]
+        $msgs[$lang][0]  # digit check network
         exit
     } else {
         $dd = [int]$d
         if ($dd -lt 0 -or $dd -gt 255) {
-            $msgs[$lang][0]
+            $msgs[$lang][0]      # network range check
             exit    
         }
     }
@@ -74,7 +75,7 @@ for ($i = 0; $i -lt 256; $i += 256/[math]::Pow(2,$msk - 24)){
     }
     $vld += (" " + $i.ToString())
 }
-if (-not $found){
+if (-not $found){  # network and mask compatibility check
      $msgs[$lang][2]+$startnet+$msgs[$lang][3]+$msk+$msgs[$lang][4]+$vld
      exit 
 }
