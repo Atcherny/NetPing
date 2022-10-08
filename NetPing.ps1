@@ -1,9 +1,9 @@
 $delay = 1 # ping timeout
 $lang = (get-Culture).TwoLetterISOLanguageName
 $StartTime = (Get-Date)
-#if ($lang -ne "ru") {    # language message
+if ($lang -ne "ru") {    # language message
 $lang = "en"
-#} 
+} 
 $msgs = @{}  # messages
 $msgs["ru"] = (" Ошибка : необходимы параметры в формате x.x.x.x/m [t1 t2 t2 ...]`n         где x от 0 по 255, m от 24 по 30 , t1.. - tcp порты",
     " Ошибка : в данной версии скрипта маска может быть от 24 и по 30 включительно",
