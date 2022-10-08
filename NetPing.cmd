@@ -1,1 +1,1 @@
-@PowerShell.exe -ExecutionPolicy UnRestricted -F NetPing.ps1 %1
+@PowerShell.exe -ExecutionPolicy UnRestricted -F NetPing.ps1 %*
