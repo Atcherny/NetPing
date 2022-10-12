@@ -1,22 +1,24 @@
-$delay = 1 # ping timeout
+п»ї$delay = 1 # ping timeout
 $lang = (get-Culture).TwoLetterISOLanguageName
+$psver = (host).Version.Major
 $StartTime = (Get-Date)
 if ($lang -ne "ru") {    # language message
 $lang = "en"
 } 
 $msgs = @{}  # messages
-$msgs["ru"] = (" Ошибка : необходимы параметры в формате x.x.x.x/m [t1 t2 t2 ...]`n         где x от 0 по 255, m от 24 по 30 , t1.. - tcp порты",
-    " Ошибка : в данной версии скрипта маска может быть от 24 и по 30 включительно",
-    " Ошибка : неверный начальный адрес сети ",
-    ", для маски ",
-    "`n возможны только",
-    "Проверка доступности ",
-    "       Адрес        Время",
-    " мс",
-    "----- Получен ответ от ",
-    "Ответов не получено",
-    "    Порты",
-    " за время (мин:сек) ")
+$msgs["ru"] = (" РћС€РёР±РєР° : РЅРµРѕР±С…РѕРґРёРјС‹ РїР°СЂР°РјРµС‚СЂС‹ РІ С„РѕСЂРјР°С‚Рµ x.x.x.x/m [t1 t2 t2 ...]`n         РіРґРµ x РѕС‚ 0 РїРѕ 255, m РѕС‚ 24 РїРѕ 30 , t1.. - tcp РїРѕСЂС‚С‹",
+    " РћС€РёР±РєР° : РІ РґР°РЅРЅРѕР№ РІРµСЂСЃРёРё СЃРєСЂРёРїС‚Р° РјР°СЃРєР° РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕС‚ 24 Рё РїРѕ 30 РІРєР»СЋС‡РёС‚РµР»СЊРЅРѕ",
+    " РћС€РёР±РєР° : РЅРµРІРµСЂРЅС‹Р№ РЅР°С‡Р°Р»СЊРЅС‹Р№ Р°РґСЂРµСЃ СЃРµС‚Рё ",
+    ", РґР»СЏ РјР°СЃРєРё ",
+    "`n РІРѕР·РјРѕР¶РЅС‹ С‚РѕР»СЊРєРѕ",
+    "РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїРЅРѕСЃС‚Рё ",
+    "       РђРґСЂРµСЃ        Р’СЂРµРјСЏ",
+    " РјСЃ",
+    "----- РџРѕР»СѓС‡РµРЅ РѕС‚РІРµС‚ РѕС‚ ",
+    "РћС‚РІРµС‚РѕРІ РЅРµ РїРѕР»СѓС‡РµРЅРѕ",
+    "    РџРѕСЂС‚С‹",
+    " Р·Р° РІСЂРµРјСЏ (РјРёРЅ:СЃРµРє) ",
+    " РџСЂРѕРІРµСЂСЏРµРј ")
 $msgs["en"] = (" Error : required parameter in x.x.x.x/m format [t1 t2 t3 ...]`n          x from 0 to 255, m from 24 to 30, t - tcp ports",
     " Error: in this version of the script, the mask can be from 24 to 30 inclusive",
     " Error: Invalid network start address ",
@@ -28,7 +30,8 @@ $msgs["en"] = (" Error : required parameter in x.x.x.x/m format [t1 t2 t3 ...]`n
     "Received response from ",
     "No replies received",
     "    Ports",
-    " during (min:sec) ")
+    " during (min:sec) ",
+    "РЎhecking ")
 
 $args_count = $args.Length
 
@@ -95,6 +98,7 @@ if ($args_count -gt 1) {
 $start = $startnet + 1
 $end = $startnet + [math]::Pow(2, 32 - $msk) - 1
 $net = $net.SubString(0, $net.LastIndexOf(".") + 1)
+$msgs[$lang][12]+$net+$start.ToString()+" - "+$net+($end-1).ToString()
 $count = 0
 for ($i = $Start; $i -lt $end; $i++) {
     $hst = $net + $i.ToString()
@@ -112,8 +116,13 @@ for ($i = $Start; $i -lt $end; $i++) {
             $tstPorts.Close()
         }
     }
-    if ($tst) {
-        $ping_time = $tst.ResponseTime.ToString()+$msgs[$lang][7]
+    if (($psver -eq 7 -and $tst.Status -eq "Success") -or ($psver -lt 6 -and $tst)) {
+        if ($psver -eq 7) {
+            $ping_time = $tst.Latency
+        } else {
+            $ping_time = $tst.ResponseTime
+        } 
+        $ping_time = $ping_time.ToString()+$msgs[$lang][7]
         $succ = $True
     }
     else {
